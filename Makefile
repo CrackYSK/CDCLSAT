@@ -16,17 +16,20 @@ OBJ_DIR = $(OUT_DIR)/obj
 
 all: directories CDCL
 
-CDCL: $(OBJ_DIR)/main.o $(OBJ_DIR)/Parser.o $(OBJ_DIR)/representation.o
-	g++ $(CFLAGS) $(DEFINES) -o $(OUT_DIR)/CDCL $^
+CDCL: main.o Parser.o representation.o Valuation.o
+	g++ -o $(OUT_DIR)/CDCL $(addprefix $(OBJ_DIR)/, $^)
 
-$(OBJ_DIR)/main.o: $(SRC_DIR)/*.cpp
-	g++ $(CFLAGS) $(DEFINES) -o $@ -c $(SRC_DIR)/main.cpp
+main.o: $(SRC_DIR)/main.cpp $(SRC_DIR)/*.h
+	g++ $(CFLAGS) $(DEFINES) -o $(OBJ_DIR)/$@ -c $(SRC_DIR)/main.cpp
 
-$(OBJ_DIR)/Parser.o: $(SRC_DIR)/Parser.cpp $(SRC_DIR)/representation.cpp
-	g++ $(CFLAGS) $(DEFINES) -o $@ -c $(SRC_DIR)/Parser.cpp
+Valuation.o: $(SRC_DIR)/Valuation.* $(SRC_DIR)/representation.h
+	g++ $(CFLAGS) $(DEFINES) -o $(OBJ_DIR)/$@ -c $(SRC_DIR)/Valuation.cpp
 
-$(OBJ_DIR)/representation.o: $(SRC_DIR)/representation.cpp
-	g++ $(CFLAGS) $(DEFINES) -o $@ -c $(SRC_DIR)/representation.cpp
+representation.o: $(SRC_DIR)/representation.*
+	g++ $(CFLAGS) $(DEFINES) -o $(OBJ_DIR)/$@ -c $(SRC_DIR)/representation.cpp
+
+Parser.o: $(SRC_DIR)/Parser.* $(SRC_DIR)/representation.h
+	g++ $(CFLAGS) $(DEFINES) -o $(OBJ_DIR)/$@ -c $(SRC_DIR)/Parser.cpp
 
 clean:
 	rm -rf *~ out

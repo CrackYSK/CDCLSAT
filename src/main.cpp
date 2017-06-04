@@ -3,6 +3,7 @@
 #include <fstream>
 #include "representation.h"
 #include "Parser.h"
+#include "Valuation.h"
 
 int main(int argc, const char **argv) {
   if (argc != 2) {
@@ -33,6 +34,13 @@ int main(int argc, const char **argv) {
     printClause(c, std::cout);
   }
   std::cout << "]" << std::endl;
+#endif
+
+  Valuation v(num_of_vars);
+
+#ifdef DEBUG
+  std::cout << std::endl << "Starting valuation:" << std::endl;
+  v.printValuation(std::cout);
 #endif
 
   return 0;
