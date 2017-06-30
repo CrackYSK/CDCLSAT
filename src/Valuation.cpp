@@ -13,7 +13,7 @@ void Valuation::push(Literal l, bool decide) {
   _values[varFromLit(l)] = isPositive(l) ? B_TRUE : B_FALSE;
 }
 
-Literal Valuation::backtrackToLevel(unsigned level) {
+Literal Valuation::backjumpToLevel(unsigned level) {
   Literal l;
   while (_stack.back().second > level)  {
     _values[varFromLit(_stack.back().first)] = B_UNDEFINED;

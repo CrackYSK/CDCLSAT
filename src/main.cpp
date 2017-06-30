@@ -4,6 +4,7 @@
 #include "representation.h"
 #include "Parser.h"
 #include "Valuation.h"
+#include "Solver.h"
 
 int main(int argc, const char **argv) {
   if (argc != 2) {
@@ -36,12 +37,14 @@ int main(int argc, const char **argv) {
   std::cout << "]" << std::endl;
 #endif
 
-  Valuation v(num_of_vars);
 
 #ifdef DEBUG
+  Valuation v(num_of_vars);
   std::cout << std::endl << "Starting valuation:" << std::endl;
   v.printValuation(std::cout);
 #endif
+
+  Solver solver(f, num_of_vars);
 
   return 0;
 }

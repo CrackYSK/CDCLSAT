@@ -16,7 +16,7 @@ OBJ_DIR = $(OUT_DIR)/obj
 
 all: directories CDCL
 
-CDCL: main.o Parser.o representation.o Valuation.o
+CDCL: main.o Parser.o representation.o Valuation.o Solver.o
 	g++ -o $(OUT_DIR)/CDCL $(addprefix $(OBJ_DIR)/, $^)
 
 main.o: $(SRC_DIR)/main.cpp $(SRC_DIR)/*.h
@@ -30,6 +30,9 @@ representation.o: $(SRC_DIR)/representation.*
 
 Parser.o: $(SRC_DIR)/Parser.* $(SRC_DIR)/representation.h
 	g++ $(CFLAGS) $(DEFINES) -o $(OBJ_DIR)/$@ -c $(SRC_DIR)/Parser.cpp
+
+Solver.o: $(SRC_DIR)/Solver.* $(SRC_DIR)/representation.h $(SRC_DIR)/Valuation.h
+	g++ $(CFLAGS) $(DEFINES) -o $(OBJ_DIR)/$@ -c $(SRC_DIR)/Solver.cpp
 
 clean:
 	rm -rf *~ out
