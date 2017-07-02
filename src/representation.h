@@ -23,6 +23,9 @@ Literal litFromInt(int i);
 typedef std::set<Literal> Clause;
 typedef std::set<Clause> Formula;
 
+bool clauseContainsLiteral(const Clause & c, const Literal & l);
+Clause invertClause(const Clause & c);
+
 void printClause(const Clause &c, std::ostream &out);
 
 enum ExtendedBoolean { B_TRUE, B_FALSE, B_UNDEFINED };

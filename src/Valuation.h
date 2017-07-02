@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <cassert>
 #include "representation.h"
 
 class Valuation {
@@ -13,7 +14,7 @@ public:
 
   unsigned current_level() const;
   void push(Literal l, bool decide = false);
-  Literal backjumpToLevel(unsigned level);
+  void backjumpToLevel(unsigned level);
   bool findFirstUndefined(Variable &v) const;
   ExtendedBoolean variableValue(Variable v) const;
   ExtendedBoolean literalValue(Literal l) const;
@@ -21,6 +22,9 @@ public:
   bool isClauseUnit(const Clause &c, Literal &l) const;
   void printValuation(std::ostream &out) const;
   void printStack(std::ostream &out) const;
+  Literal lastAssertedLiteral(const Clause & c) const;
+  unsigned numberOfTopLevelLiterals(const Clause & c) const;
+  unsigned lastAssertedLiteralLevel(const Clause & c) const;
 
 private:
   std::vector<ExtendedBoolean> _values;

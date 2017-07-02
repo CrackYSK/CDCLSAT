@@ -13,16 +13,12 @@ void Valuation::push(Literal l, bool decide) {
   _values[varFromLit(l)] = isPositive(l) ? B_TRUE : B_FALSE;
 }
 
-Literal Valuation::backjumpToLevel(unsigned level) {
-  Literal l;
+void Valuation::backjumpToLevel(unsigned level) {
   while (_stack.back().second > level)  {
     _values[varFromLit(_stack.back().first)] = B_UNDEFINED;
-    l = _stack.back().first;
     _stack.pop_back();
   }
   _curr_level = level;
-
-  return l;
 }
 
 bool Valuation::findFirstUndefined(Variable &v) const {
@@ -100,4 +96,38 @@ void Valuation::printStack(std::ostream &out) const {
   }
 
   out << 0 << std::endl;
+}
+
+Literal Valuation::lastAssertedLiteral(const Clause & c) const {
+  for (auto it = _stack.rbegin(); it != _stack.rend(); it++) {
+    if (clauseContainsLiteral(c, it->first)) {
+      return it->first;
+    }
+  }
+
+  // this part of the function is unreachable
+  assert(false);
+}
+
+unsigned Valuation::numberOfTopLevelLiterals(const Clause & c) const {
+  unsigned count = 0;
+  for (auto it = _stack.rbegin(); it != _stack.rend(); it++) {
+    if (it->second < _curr_level) {
+      return count;
+    } else if (clauseContainsLiteral(c, it->first)) {
+      count++;
+    }
+  }
+
+  return count;
+}
+
+unsigned Valuation::lastAssertedLiteralLevel(const Clause & c) const {
+  for (auto it = _stack.rbegin(); it != _stack.rend(); it++) {
+    if (clauseContainsLiteral(c, it->first)) {
+      return it->second;
+    }
+  }
+
+  return 0;
 }

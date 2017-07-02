@@ -28,6 +28,25 @@ Literal litFromInt(int i) {
   return i > 0 ? litFromVar(i - 1, P_POSITIVE) : litFromVar(-i - 1, P_NEGATIVE);
 }
 
+bool clauseContainsLiteral(const Clause & c, const Literal & l) {
+  for (auto it = c.begin(); it != c.end(); it++) {
+    if (*it == l) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+Clause invertClause(const Clause & c) {
+  Clause new_clause;
+  for (auto it = c.begin(); it != c.end(); it++) {
+    new_clause.insert(oppositeLiteral(*it));
+  }
+
+  return new_clause;
+}
+
 void printClause(const Clause &c, std::ostream &out) {
   out << "[";
   for (auto i = c.cbegin(); i != c.cend(); i++) {

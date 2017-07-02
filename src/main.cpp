@@ -46,5 +46,12 @@ int main(int argc, const char **argv) {
 
   Solver solver(f, num_of_vars);
 
+  if (solver.solve()) {
+    // TODO: print valuation
+    std::cout << "SAT" << std::endl;
+  } else {
+    std::cout << "UNSAT" << std::endl;
+  }
+
   return 0;
 }
