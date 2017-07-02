@@ -60,9 +60,19 @@ void printClause(const Clause &c, std::ostream &out) {
 ExtendedBoolean operator!(ExtendedBoolean b) {
   if (b == B_TRUE) {
     return B_FALSE;
-  } else if (B_FALSE) {
+  } else if (b == B_FALSE) {
     return B_TRUE;
   } else {
     return B_UNDEFINED;
   }
+}
+
+
+void printFormula(const Formula & f, std::ostream & out) {
+  out << "]" << std::endl;
+  for (Clause c : f) {
+    out << "\t";
+    printClause(c, out);
+  }
+  out << "]" << std::endl;
 }

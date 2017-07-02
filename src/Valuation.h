@@ -14,7 +14,7 @@ public:
 
   unsigned current_level() const;
   void push(Literal l, bool decide = false);
-  void backjumpToLevel(unsigned level);
+  void backjumpToLiteral(const Literal & l, std::vector<Literal> & literals);
   bool findFirstUndefined(Variable &v) const;
   ExtendedBoolean variableValue(Variable v) const;
   ExtendedBoolean literalValue(Literal l) const;
@@ -22,9 +22,9 @@ public:
   bool isClauseUnit(const Clause &c, Literal &l) const;
   void printValuation(std::ostream &out) const;
   void printStack(std::ostream &out) const;
-  Literal lastAssertedLiteral(const Clause & c) const;
+  void lastAssertedLiteral(const Clause & c, Literal & l, bool & empty) const;
   unsigned numberOfTopLevelLiterals(const Clause & c) const;
-  unsigned lastAssertedLiteralLevel(const Clause & c) const;
+  void clear();
 
 private:
   std::vector<ExtendedBoolean> _values;

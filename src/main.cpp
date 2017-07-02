@@ -31,10 +31,7 @@ int main(int argc, const char **argv) {
 
 #ifdef DEBUG
   std::cout << "Formula from readDIMACS:" << std::endl << "[" << std::endl;
-  for (Clause c : f) {
-    printClause(c, std::cout);
-  }
-  std::cout << "]" << std::endl;
+  printFormula(f, std::cout);
 #endif
 
 
@@ -47,8 +44,8 @@ int main(int argc, const char **argv) {
   Solver solver(f, num_of_vars);
 
   if (solver.solve()) {
-    // TODO: print valuation
     std::cout << "SAT" << std::endl;
+    solver.printModel(std::cout);
   } else {
     std::cout << "UNSAT" << std::endl;
   }

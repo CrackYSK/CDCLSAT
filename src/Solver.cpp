@@ -44,17 +44,38 @@ bool Solver::canBackjump() {
 void Solver::applyUnitPropagation(const Literal & l, const Clause & c) {
   _valuation.push(l);
   _reason[l] = c;
+#ifdef DEBUG
+  std::cout << "Literal " << intFromLit(l) << " propagated because ";
+  printClause(c, std::cout);
+#endif
 }
 
 void Solver::applyDecide(const Literal & l) {
   _valuation.push(l, true);
+#ifdef DEBUG
+  std::cout << "Literal " << intFromLit(l) << " decided" << std::endl;
+#endif
 }
 
-void Solver::applyBackjump(unsigned level) {
-  Literal l = _valuation.lastAssertedLiteral(invertClause(_conflict));
-  _valuation.backjumpToLevel(level);
-  _valuation.push(oppositeLiteral(l));
-  _reason[oppositeLiteral(l)] = _conflict;
+void Solver::applyBackjump(const Literal & l) {
+  std::vector<Literal> literals;
+  Literal lit_to_prop;
+  bool empty;
+  _valuation.lastAssertedLiteral(invertClause(_conflict), lit_to_prop, empty);
+  _valuation.backjumpToLiteral(l, literals);
+  for (Literal lit : literals) {
+    _reason.erase(lit);
+  }
+  applyUnitPropagation(oppositeLiteral(lit_to_prop), _conflict);
+}
+
+void Solver::applyBackjumpToStart() {
+  Literal lit_to_prop;
+  bool empty;
+  _valuation.lastAssertedLiteral(invertClause(_conflict), lit_to_prop, empty);
+  _reason.clear();
+  restart();
+  applyUnitPropagation(oppositeLiteral(lit_to_prop), _conflict);
 }
 
 void Solver::initialAnalysis() {
@@ -63,12 +84,29 @@ void Solver::initialAnalysis() {
 
 void Solver::applyExplainUIP() {
   while (!isUIP()) {
-    applyExplain(_valuation.lastAssertedLiteral(invertClause(_conflict)));
+    Literal l;
+    bool empty;
+    _valuation.lastAssertedLiteral(invertClause(_conflict), l, empty);
+    applyExplain(l);
+  }
+}
+
+void Solver::applyExplainEmpty() {
+  while (!_conflict.empty()) {
+    Literal l;
+    bool empty;
+    _valuation.lastAssertedLiteral(invertClause(_conflict), l, empty);
+    applyExplain(l);
   }
 }
 
 void Solver::applyLearn() {
   _formula.insert(_conflict);
+
+#ifdef DEBUG
+  std::cout << "Clause learned: ";
+  printClause(_conflict, std::cout);
+#endif
 }
 
 bool Solver::isUIP() {
@@ -104,16 +142,26 @@ Clause Solver::resolve(const Clause & c1, const Clause & c2, const Literal & l) 
   return resolvent;
 }
 
-int Solver::getBackjumpLevel() {
-  Literal l = _valuation.lastAssertedLiteral(invertClause(_conflict));
+void Solver::getBackjumpLiteral(Literal &l, unsigned & level) {
+  bool empty;
+  _valuation.lastAssertedLiteral(invertClause(_conflict), l, empty);
   Clause temp;
   for (auto it = _conflict.begin(); it != _conflict.end(); it++) {
-    if (*it != l) {
+    if (*it != oppositeLiteral(l)) {
       temp.insert(*it);
     }
   }
 
-  return _valuation.lastAssertedLiteralLevel(temp);
+  _valuation.lastAssertedLiteral(invertClause(temp), l, empty);
+
+  if (empty) {
+    level = 0;
+  } 
+
+}
+
+void Solver::restart() {
+  _valuation.clear();
 }
 
 bool Solver::solve() {
@@ -127,10 +175,19 @@ bool Solver::solve() {
       if (canBackjump()) {
         applyExplainUIP();
         applyLearn();
-        applyBackjump(getBackjumpLevel());
+        unsigned level;
+        Literal backjump_literal;
+        getBackjumpLiteral(backjump_literal, level);
+        if (level != 0) {
+          applyBackjump(backjump_literal);
+        } else {
+          applyBackjumpToStart();
+        }
         _conflict.clear();
       } else {
-        // TODO: empty conflict clause
+        applyExplainEmpty();
+        applyLearn();
+        _status = B_FALSE;
         return false;
       }
     } else if (checkUnit(l, reason)) {
@@ -138,7 +195,14 @@ bool Solver::solve() {
     } else if (chooseDecisionLiteral(l)) {
       applyDecide(l);
     } else {
+      _status = B_TRUE;
       return true;
     }
+  }
+}
+
+void Solver::printModel(std::ostream & out) {
+  if (_status == B_TRUE) {
+    _valuation.printValuation(out);
   }
 }

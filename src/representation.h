@@ -28,8 +28,10 @@ Clause invertClause(const Clause & c);
 
 void printClause(const Clause &c, std::ostream &out);
 
-enum ExtendedBoolean { B_TRUE, B_FALSE, B_UNDEFINED };
+enum ExtendedBoolean { B_UNDEFINED, B_TRUE, B_FALSE };
 
 ExtendedBoolean operator!(ExtendedBoolean b);
+
+void printFormula(const Formula & f, std::ostream & out);
 
 #endif

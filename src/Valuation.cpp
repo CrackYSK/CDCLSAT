@@ -13,12 +13,18 @@ void Valuation::push(Literal l, bool decide) {
   _values[varFromLit(l)] = isPositive(l) ? B_TRUE : B_FALSE;
 }
 
-void Valuation::backjumpToLevel(unsigned level) {
-  while (_stack.back().second > level)  {
+void Valuation::backjumpToLiteral(const Literal & l, std::vector<Literal> & literals) {
+  std::cout << intFromLit(l) << std::endl;
+  while (_stack.back().first != l && !_stack.empty())  {
     _values[varFromLit(_stack.back().first)] = B_UNDEFINED;
+    literals.push_back(_stack.back().first);
     _stack.pop_back();
   }
-  _curr_level = level;
+  if (_stack.empty()) {
+    _curr_level = 0;
+  } else {
+    _curr_level = _stack.back().second;
+  }
 }
 
 bool Valuation::findFirstUndefined(Variable &v) const {
@@ -37,6 +43,11 @@ ExtendedBoolean Valuation::variableValue(Variable v) const {
 }
 
 ExtendedBoolean Valuation::literalValue(Literal l) const {
+  if (isPositive(l)) {
+    return _values[varFromLit(l)];
+  } else {
+    return !(_values[varFromLit(l)]);
+  }
   return isPositive(l) ? _values[varFromLit(l)] : !_values[varFromLit(l)];
 }
 
@@ -52,8 +63,8 @@ bool Valuation::isClauseFalse(const Clause &c) const {
 
 bool Valuation::isClauseUnit(const Clause &c, Literal &l) const {
   bool found = false;
-
   for (auto i = c.begin(); i != c.end(); i++) {
+
     if (literalValue(*i) == B_TRUE) {
       return false;
     }
@@ -98,15 +109,14 @@ void Valuation::printStack(std::ostream &out) const {
   out << 0 << std::endl;
 }
 
-Literal Valuation::lastAssertedLiteral(const Clause & c) const {
+void Valuation::lastAssertedLiteral(const Clause & c, Literal & l, bool & empty) const {
   for (auto it = _stack.rbegin(); it != _stack.rend(); it++) {
     if (clauseContainsLiteral(c, it->first)) {
-      return it->first;
+      l = it->first;
     }
   }
 
-  // this part of the function is unreachable
-  assert(false);
+  empty = true;
 }
 
 unsigned Valuation::numberOfTopLevelLiterals(const Clause & c) const {
@@ -122,12 +132,10 @@ unsigned Valuation::numberOfTopLevelLiterals(const Clause & c) const {
   return count;
 }
 
-unsigned Valuation::lastAssertedLiteralLevel(const Clause & c) const {
-  for (auto it = _stack.rbegin(); it != _stack.rend(); it++) {
-    if (clauseContainsLiteral(c, it->first)) {
-      return it->second;
-    }
+void Valuation::clear() {
+  _stack.clear();
+  for (unsigned i = 0; i < _values.size(); i++) {
+    _values[i] = B_UNDEFINED;
   }
-
-  return 0;
+  _curr_level = 0;
 }
