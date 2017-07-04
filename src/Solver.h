@@ -30,7 +30,7 @@ public:
   void applyLearn();
   bool isUIP();
   void applyExplain(const Literal & l);
-  void getBackjumpLiteral(Literal & l, unsigned & level);
+  void getBackjumpLiteral(Literal & l, bool & restart);
   Clause resolve(const Clause & c1, const Clause & c2, const Literal & l);
   void restart();
 

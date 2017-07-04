@@ -14,7 +14,6 @@ void Valuation::push(Literal l, bool decide) {
 }
 
 void Valuation::backjumpToLiteral(const Literal & l, std::vector<Literal> & literals) {
-  std::cout << intFromLit(l) << std::endl;
   while (_stack.back().first != l && !_stack.empty())  {
     _values[varFromLit(_stack.back().first)] = B_UNDEFINED;
     literals.push_back(_stack.back().first);
@@ -110,9 +109,11 @@ void Valuation::printStack(std::ostream &out) const {
 }
 
 void Valuation::lastAssertedLiteral(const Clause & c, Literal & l, bool & empty) const {
+  empty = false;
   for (auto it = _stack.rbegin(); it != _stack.rend(); it++) {
     if (clauseContainsLiteral(c, it->first)) {
       l = it->first;
+      return;
     }
   }
 

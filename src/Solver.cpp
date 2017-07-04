@@ -107,6 +107,7 @@ void Solver::applyLearn() {
   std::cout << "Clause learned: ";
   printClause(_conflict, std::cout);
 #endif
+
 }
 
 bool Solver::isUIP() {
@@ -139,12 +140,21 @@ Clause Solver::resolve(const Clause & c1, const Clause & c2, const Literal & l) 
     }
   }
 
+#ifdef DEBUG
+  std::cout << "Resolving clauses: ";
+  printClause(c1, std::cout);
+  std::cout << " and ";
+  printClause(c2, std::cout);
+  std::cout << " into clause ";
+  printClause(resolvent, std::cout);
+  std::cout << std::endl;
+#endif
+
   return resolvent;
 }
 
-void Solver::getBackjumpLiteral(Literal &l, unsigned & level) {
-  bool empty;
-  _valuation.lastAssertedLiteral(invertClause(_conflict), l, empty);
+void Solver::getBackjumpLiteral(Literal &l, bool & restart) {
+  _valuation.lastAssertedLiteral(invertClause(_conflict), l, restart);
   Clause temp;
   for (auto it = _conflict.begin(); it != _conflict.end(); it++) {
     if (*it != oppositeLiteral(l)) {
@@ -152,12 +162,7 @@ void Solver::getBackjumpLiteral(Literal &l, unsigned & level) {
     }
   }
 
-  _valuation.lastAssertedLiteral(invertClause(temp), l, empty);
-
-  if (empty) {
-    level = 0;
-  } 
-
+  _valuation.lastAssertedLiteral(invertClause(temp), l, restart);
 }
 
 void Solver::restart() {
@@ -175,10 +180,10 @@ bool Solver::solve() {
       if (canBackjump()) {
         applyExplainUIP();
         applyLearn();
-        unsigned level;
+        bool restart;
         Literal backjump_literal;
-        getBackjumpLiteral(backjump_literal, level);
-        if (level != 0) {
+        getBackjumpLiteral(backjump_literal, restart);
+        if (!restart) {
           applyBackjump(backjump_literal);
         } else {
           applyBackjumpToStart();

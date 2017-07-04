@@ -48,7 +48,7 @@ Clause invertClause(const Clause & c) {
 }
 
 void printClause(const Clause &c, std::ostream &out) {
-  out << "[";
+  out << "[ ";
   for (auto i = c.cbegin(); i != c.cend(); i++) {
     out << intFromLit(*i) << " ";
   }
@@ -69,7 +69,7 @@ ExtendedBoolean operator!(ExtendedBoolean b) {
 
 
 void printFormula(const Formula & f, std::ostream & out) {
-  out << "]" << std::endl;
+  out << "[" << std::endl;
   for (Clause c : f) {
     out << "\t";
     printClause(c, out);

@@ -30,7 +30,7 @@ int main(int argc, const char **argv) {
   }
 
 #ifdef DEBUG
-  std::cout << "Formula from readDIMACS:" << std::endl << "[" << std::endl;
+  std::cout << "Formula from readDIMACS:" << std::endl;
   printFormula(f, std::cout);
 #endif
 
